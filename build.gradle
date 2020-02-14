@@ -1,0 +1,82 @@
+plugins {
+    id 'application'
+    id 'java'
+    id 'jacoco'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.sherter.google-java-format' version '0.8'
+    id 'com.github.ksoichiro.console.reporter' version '0.6.2'
+}
+
+group = 'com.doit.schemamigration'
+version = '1.0.0'
+def beamVersion = "2.19.0"
+def slf4jVersion = "1.7.30"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.apache.beam:beam-sdks-java-core:$beamVersion")
+    compile("org.apache.beam:beam-sdks-java-io-google-cloud-platform:$beamVersion")
+    compile("org.slf4j:slf4j-api:$slf4jVersion")
+    compile('com.google.cloud:google-cloud-bigquery:1.106.0')
+
+    runtime("org.slf4j:slf4j-jdk14:$slf4jVersion")
+    runtime("org.apache.beam:beam-runners-direct-java:$beamVersion")
+
+    // Use JUnit test framework
+    testImplementation("junit:junit:4.12")
+    testImplementation("org.hamcrest:hamcrest-all:1.3")
+    testImplementation("org.mockito:mockito-core:2.19.0")
+}
+
+mainClassName = "com.personal.template.Main"
+
+// Shadow Stuff
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName,
+        'Implementation-Version': version,
+        'Class-Path': configurations.runtime.files.collect { "lib/$it.name" }.join(' ')
+    }
+ from(configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }) {}
+}
+
+shadowJar {
+  archiveName = "${baseName}-${version}.${extension}"
+  mergeServiceFiles()
+}
+
+// jacoco
+jacoco {
+    toolVersion = "0.8.2"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 1.0
+            }
+        }
+    }
+}
+
+googleJavaFormat {
+    include '.gradle/*'
+}
+
+check.dependsOn jacocoTestReport
+check.dependsOn verifyGoogleJavaFormat
+check.dependsOn jacocoTestCoverageVerification
+
+shadowJar.dependsOn check
