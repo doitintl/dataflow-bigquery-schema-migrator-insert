@@ -15,21 +15,18 @@ import org.apache.beam.sdk.io.gcp.bigquery.BigQueryHelpers;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryInsertError;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.values.KV;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 public class KeyByDestTableTest {
-  @Mock private DoFn<BigQueryInsertError, KV<String, Schema>>.ProcessContext processContext;
-  @Captor private ArgumentCaptor<KV<String, Schema>> captor;
+  @Mock
+  private final DoFn<BigQueryInsertError, KV<String, Schema>>.ProcessContext processContext =
+      mock(DoFn.ProcessContext.class);
 
-  @Before
-  public void init() {
-    MockitoAnnotations.initMocks(this);
-  }
+  @Captor
+  private final ArgumentCaptor<KV<String, Schema>> captor = ArgumentCaptor.forClass(KV.class);
 
   @Test
   public void processElementTest() {

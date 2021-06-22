@@ -2,6 +2,7 @@ plugins {
     id 'application'
     id 'java'
     id 'jacoco'
+    id "org.kordamp.gradle.errorprone" version "0.46.0"
     id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'com.github.sherter.google-java-format' version '0.8'
     id 'com.github.ksoichiro.console.reporter' version '0.6.2'
@@ -9,7 +10,7 @@ plugins {
 
 group = 'com.doit.schemamigration'
 version = '1.0.0'
-def beamVersion = "2.23.0"
+def beamVersion = "2.29.0"
 def slf4jVersion = "1.7.30"
 
 repositories {
@@ -38,14 +39,14 @@ mainClassName = "com.doit.schemamigration.Main"
 jar {
     manifest {
         attributes 'Main-Class': mainClassName,
-        'Implementation-Version': version,
+        'Implementation-Version': archiveVersion,
         'Class-Path': configurations.runtimeClasspath.files.collect { "lib/$it.name" }.join(' ')
     }
- from(configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }) {}
+ from(configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {}
 }
 
 shadowJar {
-  archiveName = "${baseName}-${version}.${extension}"
+  archiveFileName = "${archivesBaseName}-${archiveVersion}.${archiveExtension}"
   mergeServiceFiles()
 }
 

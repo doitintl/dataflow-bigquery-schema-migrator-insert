@@ -43,7 +43,7 @@ Example for an unacceptable object, with a nested JSON object:
 
 ## Requirements
 
-* Java 8
+* Java 11
 * Enabled Google Bigquery API
 * Enabled Google PubSub
 * Create a topic and subscriber in Google Pubsub with the same name

@@ -9,6 +9,7 @@ import com.google.api.client.googleapis.util.Utils;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import java.util.Objects;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryInsertError;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryInsertErrorCoder;
@@ -17,6 +18,7 @@ import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.*;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -25,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FailureAndRetryMechanism
-    extends PTransform<PCollection<BigQueryInsertError>, PCollection<String>> {
+    extends PTransform<@NonNull PCollection<BigQueryInsertError>, @NonNull PCollection<String>> {
   final Logger logger = LoggerFactory.getLogger(FailureAndRetryMechanism.class);
   static final TableSchema failOverSchema =
       new TableSchema()
@@ -61,6 +63,7 @@ public class FailureAndRetryMechanism
   }
 
   @Override
+  @NonNull
   public PCollection<String> expand(PCollection<BigQueryInsertError> input) {
     final PCollectionTuple failures =
         input.apply(
@@ -77,7 +80,7 @@ public class FailureAndRetryMechanism
                 .withFormatFunction(
                     (BigQueryInsertError error) -> {
                       final TableRow tableRow = new TableRow();
-                      tableRow.set("bad_data", error.getRow().toString());
+                      tableRow.set("bad_data", Objects.requireNonNull(error).getRow().toString());
                       tableRow.set("table_dest", error.getTable().getTableId());
                       tableRow.set("error", error.getError().toString());
                       tableRow.set("insert_time", dateTimeFormatter.print(Instant.now()));
@@ -95,7 +98,7 @@ public class FailureAndRetryMechanism
             MapElements.into(TypeDescriptor.of(String.class))
                 .via(
                     (BigQueryInsertError item) -> {
-                      final TableRow tableRow = item.getRow();
+                      final TableRow tableRow = Objects.requireNonNull(item).getRow();
                       tableRow.setFactory(Utils.getDefaultJsonFactory());
                       return tableRow.toString();
                     }));

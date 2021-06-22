@@ -31,7 +31,7 @@ import org.junit.runners.model.Statement;
 // https://github.com/apache/beam/blob/v2.19.0/sdks/java/io/google-cloud-platform/src/test/java/org/apache/beam/sdk/io/gcp/bigquery/BigQueryIOWriteTest.java
 public class FailureAndRetryMechanismTest {
   private PipelineOptions options;
-  private TemporaryFolder testFolder = new TemporaryFolder();
+  private final TemporaryFolder testFolder = new TemporaryFolder();
   private TestPipeline p;
 
   @Rule
@@ -76,7 +76,7 @@ public class FailureAndRetryMechanismTest {
         TypeDescriptor.of(BigQueryInsertError.class), BigQueryInsertErrorCoder.of());
 
     FakeDatasetService.setUp();
-    fakeDatasetService.createDataset("a12345", "b", "", "", null);
+    fakeDatasetService.createDataset("a12345", "b", "", "", 1L);
   }
 
   @Test

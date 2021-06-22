@@ -1,9 +1,9 @@
 package com.doit.schemamigration.Parsers;
 
 import static com.doit.schemamigration.Parsers.JsonToTableRow.convertFromString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
 
 import com.google.api.services.bigquery.model.TableRow;
 import org.junit.Test;

@@ -4,6 +4,7 @@ import static com.google.cloud.bigquery.BigQueryOptions.newBuilder;
 
 import com.google.cloud.bigquery.*;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.beam.repackaged.core.org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -32,7 +33,8 @@ public class MergeSchema extends DoFn<KV<String, Schema>, KV<String, Schema>> {
   @ProcessElement
   public void processElement(final ProcessContext c) {
     final KV<String, Schema> tableAndSchema = c.element();
-    final TableId tableId = TableId.of(datasetName, tableAndSchema.getKey());
+    final TableId tableId =
+        TableId.of(datasetName, Objects.requireNonNull(tableAndSchema).getKey());
     final Optional<Table> targetTable = getOrCreateTable(tableId, tableAndSchema.getValue());
     if (targetTable.isPresent()) {
       final Table table = targetTable.get();
